@@ -1,26 +1,25 @@
 package com.wellsfargo.counselor.entity;
 
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Entity
-@Table(name = "advisors")
-public class Advisor {
+@Table(name = "clients")
+public class Client {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "advisor_id", nullable = false, updatable = false)
-    private Long advisorId;
+    @Column(name = "client_id", nullable = false, updatable = false)
+    private Long clientId;
 
     @Column(nullable = false)
     private String firstName;
@@ -37,34 +36,36 @@ public class Advisor {
     @Column(nullable = false)
     private String email;
 
-    @OneToMany(mappedBy = "advisor", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Client> clients = new HashSet<>();
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "advisor_id", nullable = false)
+    private Advisor advisor;
 
-    protected Advisor() {
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Portfolio portfolio;
+
+    protected Client() {
     }
 
-    public Advisor(String firstName, String lastName, String address, String phone, String email) {
-        this(firstName, lastName, address, phone, email, new HashSet<>());
-    }
-
-    public Advisor(
+    public Client(
             String firstName,
             String lastName,
             String address,
             String phone,
             String email,
-            Set<Client> clients
+            Advisor advisor,
+            Portfolio portfolio
     ) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.address = address;
         this.phone = phone;
         this.email = email;
-        this.clients = clients == null ? new HashSet<>() : new HashSet<>(clients);
+        this.advisor = advisor;
+        this.portfolio = portfolio;
     }
 
-    public Long getAdvisorId() {
-        return advisorId;
+    public Long getClientId() {
+        return clientId;
     }
 
     public String getFirstName() {
@@ -107,11 +108,19 @@ public class Advisor {
         this.email = email;
     }
 
-    public Set<Client> getClients() {
-        return clients;
+    public Advisor getAdvisor() {
+        return advisor;
     }
 
-    public void setClients(Set<Client> clients) {
-        this.clients = clients == null ? new HashSet<>() : new HashSet<>(clients);
+    public void setAdvisor(Advisor advisor) {
+        this.advisor = advisor;
+    }
+
+    public Portfolio getPortfolio() {
+        return portfolio;
+    }
+
+    public void setPortfolio(Portfolio portfolio) {
+        this.portfolio = portfolio;
     }
 }
